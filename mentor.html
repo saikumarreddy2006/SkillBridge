@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI Mentor | SkillBridge AI</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="script.js"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: {
+              50: '#f0fdfa',
+              100: '#ccfbf1',
+              500: '#14b8a6',
+              600: '#0d9488',
+              700: '#0f766e',
+              900: '#134e4a',
+            }
+          },
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+          }
+        }
+      }
+    }
+  </script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+    }
+  </style>
+</head>
+
+<body class="bg-slate-50 text-slate-900 antialiased h-screen flex flex-col">
+
+  <nav class="fixed top-0 w-full z-50 bg-white/80 backdrop-blur-md border-b border-slate-200">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex justify-between h-16 items-center">
+        <a href="index.html" class="flex items-center space-x-2">
+          <span class="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-slate-800 to-slate-600">
+            SkillBridge AI
+          </span>
+        </a>
+        <div class="flex space-x-4">
+          <a href="index.html" class="text-sm font-medium text-slate-600 hover:text-primary-600">Home</a>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <div class="pt-24 pb-6 px-4 max-w-4xl mx-auto w-full flex-grow flex flex-col">
+    <div class="flex-none mb-6 text-center">
+      <h1 class="text-3xl font-bold">AI Career Mentor</h1>
+      <p class="text-slate-500">Ask anything about your career path</p>
+    </div>
+
+    <div class="flex-grow bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden flex flex-col h-full">
+      <!-- Chat History -->
+      <div id="chat-container" class="flex-grow overflow-y-auto p-6 space-y-6">
+        <!-- Bot Welcome -->
+        <div class="flex justify-start">
+          <div class="flex max-w-[80%] flex-row items-start gap-3">
+            <div
+              class="w-8 h-8 rounded-full bg-indigo-100 text-indigo-600 flex items-center justify-center flex-shrink-0">
+              🤖</div>
+            <div class="p-4 rounded-2xl bg-slate-100 text-slate-700">
+              Hi! I'm your AI Career Mentor. I can help you improve your resume, prepare for interviews, or suggest
+              skills to learn.
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Input Area -->
+      <div class="p-4 border-t border-slate-200 bg-slate-50">
+        <div id="suggestions" class="flex gap-2 mb-4 overflow-x-auto pb-2">
+          <button
+            class="suggestion-btn whitespace-nowrap px-4 py-2 bg-white border border-slate-200 rounded-full text-sm hover:border-primary-300">How
+            do I improve my resume?</button>
+          <button
+            class="suggestion-btn whitespace-nowrap px-4 py-2 bg-white border border-slate-200 rounded-full text-sm hover:border-primary-300">Mock
+            interview for React Developer</button>
+        </div>
+
+        <div class="flex gap-2">
+          <input type="text" id="user-input" placeholder="Ask for advice..."
+            class="flex-grow p-4 rounded-xl border border-slate-300 bg-white focus:ring-2 focus:ring-primary-500 outline-none" />
+          <button id="send-btn" class="p-4 bg-primary-600 text-white rounded-xl hover:bg-primary-700">
+            Send
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const chatContainer = document.getElementById('chat-container');
+    const userInput = document.getElementById('user-input');
+    const sendBtn = document.getElementById('send-btn');
+
+    const appendMessage = (text, isUser) => {
+      const html = `
+                <div class="flex ${isUser ? 'justify-end' : 'justify-start'}">
+                    <div class="flex max-w-[80%] ${isUser ? 'flex-row-reverse' : 'flex-row'} items-start gap-3">
+                        <div class="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 ${isUser ? 'bg-primary-600 text-white' : 'bg-indigo-100 text-indigo-600'}">
+                            ${isUser ? '👤' : '🤖'}
+                        </div>
+                        <div class="p-4 rounded-2xl ${isUser ? 'bg-primary-600 text-white' : 'bg-slate-100 text-slate-700'}">
+                            ${text}
+                        </div>
+                    </div>
+                </div>
+            `;
+      chatContainer.innerHTML += html;
+      chatContainer.scrollTop = chatContainer.scrollHeight;
+    };
+
+    const handleSend = async (text) => {
+      if (!text) return;
+      appendMessage(text, true);
+      userInput.value = '';
+
+      // Typing indicator
+      const typingId = 'typing-' + Date.now();
+      chatContainer.innerHTML += `<div id="${typingId}" class="ml-12 text-sm text-slate-400">Typing...</div>`;
+      chatContainer.scrollTop = chatContainer.scrollHeight;
+
+      const response = await getChatResponse(text);
+
+      document.getElementById(typingId).remove();
+      appendMessage(response, false);
+    };
+
+    sendBtn.addEventListener('click', () => handleSend(userInput.value));
+    userInput.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') handleSend(userInput.value);
+    });
+
+    document.querySelectorAll('.suggestion-btn').forEach(btn => {
+      btn.addEventListener('click', (e) => handleSend(e.target.innerText));
+    });
+  </script>
+</body>
+
+</html>
